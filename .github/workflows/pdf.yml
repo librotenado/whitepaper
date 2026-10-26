@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Sets the whitepaper again (Markdown → Typst → PDF with template/), checks that the committed .typ is current,
+# attaches the PDF to the run and, for a tag v*, to a GitHub release. The pandoc and typst versions come from build.sh;
+# actions are pinned by commit, with the version as a comment.
+name: PDF
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0   # the footer shows each document's last commit date
+      - name: Tool versions from build.sh
+        id: versions
+        run: |
+          echo "pandoc=$(sed -n 's/^PANDOC_VERSION=//p' build.sh)" >> "$GITHUB_OUTPUT"
+          echo "typst=$(sed -n 's/^TYPST_VERSION=//p' build.sh)" >> "$GITHUB_OUTPUT"
+      - uses: pandoc/actions/setup@86321b6dd4675f5014c611e05088e10d4939e09e # v1.1.1
+        with:
+          version: ${{ steps.versions.outputs.pandoc }}
+      - uses: typst-community/setup-typst@fee4b65b091cc546f02ce3be15fad8760f38a108 # v5.3.0
+        with:
+          typst-version: ${{ steps.versions.outputs.typst }}
+      - name: Build
+        run: ./build.sh
+      - name: Committed .typ files are current
+        run: git diff --exit-code -- '*.typ'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: librotenado-whitepaper
+          path: '*.pdf'
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: pdf
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: librotenado-whitepaper
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" whitepaper.pdf --repo "$GITHUB_REPOSITORY" --title "Whitepaper $GITHUB_REF_NAME"
