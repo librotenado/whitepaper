@@ -7,17 +7,17 @@
   version: "0.1",
   date: none,
   status: "Draft",
-  stand: "2026-10-24",
-  rev: "5c8f80e",
+  stand: "2026-10-28",
+  rev: "132f1d0",
 )
 
 == 1. Summary
 <1-summary>
-#strong[librotenado is an open protocol for accounting data in Europe.] It defines one harmonised model for everything a
-set of books consists of -- organisations, periods, a chart of accounts, bookings, currencies, receipts, invoices,
-reports and filings -- and treats the formats that already exist as translations of that model: European e-invoices
-(EN 16931 and Peppol), national e-invoicing and reporting systems, SAF-T audit files, ISO 20022 bank statements, XBRL
-financial statements and national charts of accounts.
+#strong[librotenado is an open protocol for accounting data in Europe.] It defines one harmonised model for everything a set
+of books consists of -- organisations and persons, periods, a chart of accounts, bookings, currencies, documents,
+invoices, reports and filings -- and treats the formats that already exist as translations of that model: European
+e-invoices (EN 16931 and Peppol), national e-invoicing and reporting systems, SAF-T audit files, ISO 20022 bank
+statements, XBRL financial statements and national charts of accounts.
 
 Four ideas carry the protocol:
 
@@ -25,7 +25,8 @@ Four ideas carry the protocol:
   of it -- unambiguous, reversible where the format allows, versioned and tested per country. Where a country
   distinguishes more finely than the model, the model grows; a translation never bends.
 - #strong[The original stays the receipt.] An incoming e-invoice, a bank statement or a scanned receipt is kept exactly as
-  received. Translations make it usable; they never replace it.
+  received. The data the books need -- kind, number, date -- stand in the model of their own; the original is kept
+  beside them and never replaced.
 - #strong[Synchronisation is built in.] Books are a growing set of immutable events, ordered by hybrid logical clocks and
   chained by hashes. Where two devices produce something the rules forbid, the protocol puts it on a review list
   instead of merging it silently.
@@ -97,13 +98,15 @@ of accounts. librotenado does not quantify that loss; no reliable figures are kn
   specification states what is dropped, and nothing is invented on the way back.
 + #strong[The model grows, translations do not bend.] If a country distinguishes something the model does not, the model
   is extended -- for everyone -- instead of hiding the distinction in a country-specific mapping.
-+ #strong[The original is the receipt.] A received document is stored byte for byte. Derived data refers to it; it never
-  replaces it.
++ #strong[The original is the receipt.] A received document is stored byte for byte. The data the books need stand in the
+  model on their own; they refer to the original and never replace it.
 + #strong[Nothing is overwritten.] Books are append-only. Corrections are new events that refer to what they correct.
 + #strong[Conflicts are visible.] When concurrent work breaks a rule of accounting, a person decides. The protocol never
   resolves such a conflict silently.
 + #strong[Private by design.] Books are end-to-end encrypted between the people and devices that share them. Whoever
   transports them does not need to read them.
++ #strong[One value, one form.] Every value has exactly one written form -- an amount, an identity, an absent member -- so
+  that the same content always has the same hash.
 + #strong[Open for everyone.] The specification is free to read, implement and extend; the reference library is free to
   use in any product.
 
@@ -111,12 +114,21 @@ of accounts. librotenado does not quantify that loss; no reliable figures are kn
 <4-the-model>
 The model is described here in outline; the normative definitions belong in the specification.
 
-=== 4.1 Organisations and periods
-<41-organisations-and-periods>
-An #strong[organisation] is the entity whose books are kept: a company, an association, a sole trader, a household. It
-carries its legal identifiers (for example VAT and tax numbers, register entries) as typed attributes, each with the
-country and scheme that issued it. An organisation has #strong[fiscal periods];; a period can be open, provisionally closed
-or closed. Once a period is closed, no event may change its bookings -- corrections go into an open period.
+=== 4.1 Parties and periods
+<41-parties-and-periods>
+A set of books always belongs to at least one #strong[organisation] or #strong[natural person] -- its owners. An organisation --
+a company, an association, a foundation, a partnership -- carries its name, legal form, register entries and tax
+numbers, each with the scheme that issued it, and how its capital is divided: shares are always counted in whole
+numbers of a nominal amount (a capital of 1,024 euros in 512 shares of 2 euros), and what fraction someone holds
+follows from the counts. A person carries their tax numbers and their roles in organisations -- shareholder, partner,
+managing director -- with the shares they hold.
+
+Several owners may share one set of books. Every line of a booking names the owner whose books it is in, and each
+owner\'s lines balance on their own: an internet bill can be split between a business and its owner\'s private books
+in one booking, resting on one document.
+
+An organisation has #strong[fiscal periods];; a period can be open, provisionally closed or closed. Once a period is
+closed, no event may change its bookings -- corrections go into an open period (#strong[OPEN];: not yet specified).
 
 === 4.2 A harmonised chart of accounts
 <42-a-harmonised-chart-of-accounts>
@@ -125,40 +137,49 @@ with attributes];: what kind of item an account holds (asset, liability, equity,
 its counterparty type, its role in statements, and further attributes as countries require them.
 
 The aim is a chart that is #strong[at least as fine as every national chart] it translates to. A national chart then
-becomes a view on the harmonised one: each national account corresponds to a set of harmonised accounts selected by
-their attributes. Because the harmonised chart is the finer one, the mapping from harmonised to national is always
-defined; the mapping from national to harmonised needs, at most, the attributes a business adds when it opens an
-account. Where a national chart draws a line that no harmonised attribute can express, a new attribute or account is
-added to the model.
+becomes a view on the harmonised one: each national account corresponds to exactly one harmonised account -- together
+with the accounts that refine it. Where two national accounts would fall onto the same harmonised account, the
+harmonised chart is coarser than the national one at that point, and a new account or attribute is added to the
+model.
 
-Organisations may add their own sub-accounts below the harmonised ones; they inherit all attributes of their parent,
-so every translation still works.
+Accounts are identified by UUIDs \[28\] that carry no meaning -- no number, no path, no name -- so an account can move in
+the hierarchy or be renamed without anything that refers to it changing; names come from translation data per language.
+The books may open their own accounts below the harmonised ones -- each bank account, each customer; they inherit kind
+and attributes of their parent, so every translation still works.
 
 === 4.3 Bookings as immutable events
 <43-bookings-as-immutable-events>
-A #strong[booking] is a balanced set of debit and credit lines on accounts, with a date, a period, a text and references
-to the receipts it is based on. Bookings are recorded as #strong[events];: once written, an event never changes. A
-correction is a reversal event plus a new booking, both referring to the original. The current state of the books --
-balances, open items, statements -- is derived from the events.
+A #strong[booking] is a set of debit and credit lines on accounts, balanced for every owner in every currency, with a date, a
+text and references to the documents it is based on. Bookings are recorded as #strong[events];: once written, an event never
+changes. A correction is a reversal event plus a new booking, both referring to the original. The current state of the
+books -- balances, open items, statements -- is derived from the events.
 
 === 4.4 Currencies
 <44-currencies>
-Every amount carries its currency. A booking in a foreign currency keeps the original amount and the amount in the
-organisation\'s functional currency, together with the exchange rate and its source. Revaluations at period end are
-bookings like any other. Currency codes follow ISO 4217 \[25\].
+Every amount carries its currency and is an exact count of the currency\'s smallest unit -- 12.40 euros are 1,240 cents
+-- never a floating-point number. How a currency divides is reference data, not part of any amount: the euro into 100
+cents, the yen not at all, ether into gwei and wei. Currency codes follow ISO 4217 \[25\]; currencies outside it --
+crypto assets, vouchers, bonus points -- have codes of their own that can never collide with an ISO code.
 
-=== 4.5 Receipts
-<45-receipts>
-A #strong[receipt] is any document that supports a booking: an incoming e-invoice, a PDF, a photo of a till slip, a bank
-statement, a contract. The model stores the original bytes, a cryptographic hash, the media type and, where the
-document is structured, a reference to its parsed form. A receipt is never edited; a better scan is a new receipt.
+A booking in a foreign currency keeps the original amount and the amount in the organisation\'s functional currency,
+together with the exchange rate and its source. Revaluations at period end are bookings like any other (#strong[OPEN];: not
+yet specified).
+
+=== 4.5 Documents
+<45-documents>
+A #strong[document] is what a booking is based on: an invoice, a credit note, a till receipt, a bank statement, an
+authority\'s notice. It is a record of its own -- its kind, its number, the date it bears, the day it was received --
+and the file it came as, the #strong[original];, is kept beside it as an artefact: stored byte for byte, identified by its
+cryptographic hash, but nothing in the books depends on reading it. Without a file there is no document; a booking
+without one says why. A document may back several bookings -- an invoice and its payment -- and a booking may rest on
+several documents.
 
 === 4.6 Invoices
 <46-invoices>
 An #strong[invoice] in the model covers everything EN 16931 can express, plus what national systems add (for example
 clearance identifiers returned by a tax authority). Outgoing invoices are generated from the model and then
-translated into the format the recipient or the country requires; incoming invoices are stored as receipts and
-translated into the model.
+translated into the format the recipient or the country requires; incoming invoices are recorded as documents, their
+originals kept, and translated into the model.
 
 Invoice numbers must be unique. The EU VAT Directive requires a sequential number \"based on one or more series\"
 that uniquely identifies the invoice \[19\]. librotenado uses this: every device that issues invoices receives its own
@@ -170,9 +191,10 @@ that uniquely identifies the invoice \[19\]. librotenado uses this: every device
 events and the chart of accounts. Because every report is derived, it can be recomputed for any point in time and
 any version of the rules.
 
-A #strong[filing] is a report submitted to an authority. The model records what was submitted, in which format, when, the
-authority\'s acknowledgement and any correction filed later. The submitted document and the acknowledgement are kept
-as receipts.
+A #strong[filing] is a report submitted to an authority. It records the #strong[state] of the books it was derived from -- a
+hash over all events -- so that anyone with the same events can derive it again, and it shows when later events make
+it outdated. A filing is never changed; a correction is a new filing that refers to the first. What the authority
+returns -- an acknowledgement, a notice -- is kept as a document.
 
 == 5. Translations
 <5-translations>
@@ -256,7 +278,8 @@ librotenado applies it to all events, per device, so that devices can work offli
 
 A hash is only useful if every implementation computes the same one. Events are therefore hashed over a canonical
 encoding -- JSON as defined by the JSON Canonicalization Scheme \[26\], without floating-point numbers -- that any
-implementation can reproduce byte for byte.
+implementation can reproduce byte for byte. The hash is taken over the event #strong[as received];, and the event is passed
+on as received: a device running an older version keeps what a newer version added, and the chain stays intact.
 
 === 6.4 Invariants and the review list
 <64-invariants-and-the-review-list>
@@ -267,6 +290,9 @@ Accounting has rules that concurrent work can break. Examples:
 - #strong[double reversals] -- two devices reverse the same booking independently;
 - #strong[unbalanced states] -- for example an open item settled twice by two bank matches.
 
+The same holds for what has not arrived yet: a booking on an account, a document or an owner whose description is
+still on its way is reported, not rejected.
+
 The specification lists these #strong[invariants];. After every synchronisation, an implementation checks them. A
 violation is never resolved automatically: the affected events go onto a #strong[review list];, where a person decides --
 for example by keeping one reversal and reversing the other. The decision is itself an event, so the resolution is
@@ -275,10 +301,21 @@ part of the books and visible to auditors.
 === 6.5 End-to-end encryption for groups
 <65-end-to-end-encryption-for-groups>
 Books are shared by groups that change over time: the owners, an accountant, a tax adviser, several devices per
-person. librotenado encrypts events end to end for such a group. The candidate protocol is #strong[Messaging Layer
-Security (MLS)];, RFC 9420, which lets groups from two to thousands of members agree on shared keys asynchronously,
-with forward secrecy and post-compromise security \[21\]. Whether MLS fits all requirements -- for example long-term
-access to old periods after members leave, and key recovery for an organisation -- is #strong[OPEN];.
+person. librotenado encrypts events end to end for such a group, with an architecture inspired by any-sync, the
+protocol of Anytype \[27\]:
+
+- #strong[Two strands.] The events stay a set without an order. Beside them, a strictly ordered list records who belongs
+  to the books and which key is current. Only this list needs an order -- between two parties they agree on it
+  themselves, with more an orderer sequences it without being able to read the books.
+- #strong[One books key.] Events and originals are encrypted with a symmetric key, wrapped for each member with the
+  member\'s public key. When a member leaves, a new key is made for everything that follows.
+- #strong[A chain of keys.] Each new key encrypts the previous one. Whoever holds the current key can read the whole
+  history -- as a new tax adviser or an auditor must, for ten years and more.
+
+Messaging Layer Security (MLS), RFC 9420 \[21\], was the first candidate. It is built for chats: new members do not
+receive the history, and changes of membership need one agreed order. The design above gives up MLS\'s healing after a
+compromised device in exchange for an order only on members and a history that stays readable. The algorithms, the
+recovery of lost keys and access for a limited time are #strong[OPEN];.
 
 === 6.6 Relays and backends
 <66-relays-and-backends>
@@ -300,12 +337,16 @@ prescribes, submit it through the authority\'s channel, and record the acknowled
 interface] for this pattern -- inputs, the submitted document, status, acknowledgement, corrections -- and #strong[adapters
 per country] that implement it.
 
+Adapters are separate services that an implementation reaches over HTTPS through a documented interface, so they can
+run on the same machine or be offered by a provider. Credentials for an authority\'s system stay with the adapter or
+the device that submits; they are not part of the protocol.
+
 The first adapter targets Germany, where tax filings are submitted through ELSTER; the tax administration provides
 software vendors with the ERiC library for checking and transmitting data \[22\]. Under which conditions an open
 implementation may integrate ERiC is #strong[OPEN];. Further adapters follow the country list of chapter 5.
 
-Each adapter records what it submitted as a receipt, so that a filing can always be traced back to the bookings it
-was computed from.
+Each filing records the state of the books it was computed from, and what the authority returned is kept as a
+document, so that a filing can always be traced back to the bookings behind it.
 
 == 8. Implementations
 <8-implementations>
@@ -354,8 +395,8 @@ existing standard with a source.
 + Complete the country list with sources (chapter 5).
 + Write the first translations with test suites: EN 16931 / Peppol BIS, a German national e-invoice format, ISO 20022
   camt.053, SAF-T.
-+ Specify the harmonised chart of accounts against at least two national charts.
-+ Evaluate MLS against the requirements in 6.5.
++ Specify the content of the harmonised chart of accounts against at least two national charts.
++ Specify the member list, the keys and the envelope of 6.5 byte for byte.
 + Build the filing interface and the first adapter (Germany).
 + Invite implementers, tax advisers and public bodies to review the model.
 
@@ -401,3 +442,5 @@ existing standard with a source.
 + MIT License (SPDX) -- #link("https://spdx.org/licenses/MIT.html")
 + ISO 4217, Currency codes -- #link("https://www.iso.org/iso-4217-currency-codes.html")
 + RFC 8785, JSON Canonicalization Scheme (JCS) (June 2020) -- #link("https://www.rfc-editor.org/rfc/rfc8785")
++ any-sync, Access control and encryption -- #link("https://sync.any.org/access-control/")
++ RFC 9562, Universally Unique IDentifiers (UUIDs) (May 2024) -- #link("https://www.rfc-editor.org/rfc/rfc9562")
