@@ -1,12 +1,12 @@
 ---
 title: librotenado
 subtitle: An open protocol for accounting data in Europe
-version: 0.5
+version: 0.6
 status: Draft
 ---
 
 > [!NOTE]
-> Draft v0.5, in step with version 0.5 of the specification. Statements marked **OPEN** are not yet verified and
+> Draft v0.6, in step with version 0.6 of the specification. Statements marked **OPEN** are not yet verified and
 > are collected under "Open points" at the end. Sources are numbered in square brackets and listed under "Sources".
 
 ## 1. Summary
@@ -191,9 +191,10 @@ translated into the format the recipient or the country requires; incoming invoi
 originals kept, and translated into the model.
 
 Invoice numbers must be unique. The EU VAT Directive requires a sequential number "based on one or more series"
-that uniquely identifies the invoice [19]. librotenado intends to use this: every device that issues invoices receives
-its own **number range** (a series), so that devices working offline never issue the same number (**OPEN**: not yet
-specified; the first implementation numbers on one device only).
+that uniquely identifies the invoice [19]. librotenado uses this: every device that issues invoices receives its own
+**series**, so that devices working offline never issue the same number; a series taken by two devices at once is
+reported for review. The seller's details and the customers are parties of the books, with their contacts, and travel
+with them.
 
 ### 4.7 Reports and filings
 
@@ -372,14 +373,15 @@ the ones that may follow; the specification makes no assumption about it.
 
 ### 8.1 Where it stands
 
-Version 0.5 of the specification and the reference library covers, as a draft:
+Version 0.6 of the specification and the reference library covers, as a draft:
 
 - the base types, events and synchronisation, and the canonical encoding (parts 0001–0003);
 - the harmonised chart of accounts with the French PCG and the German SKR 03 and SKR 04 as translations (0004);
 - documents with their originals: e-invoices after EN 16931 read and written in UBL and CII, with XRechnung and
   ZUGFeRD, tested against the published test cases of the German KoSIT; bank statements from camt.053, MT940 and CSV
   (0005);
-- parties and the configuration of their books (0008);
+- parties with their contacts, the configuration of their books, how they write invoices and a series of invoice
+  numbers per device (0008);
 - reports: the German balance sheet and profit and loss account after the HGB, the advance VAT return, the Anlage EÜR
   and the positions of the E-Bilanz (0009);
 - filings and their events (0007), and the data transfer to German tax auditors after the GoBD (0010);
@@ -421,7 +423,7 @@ existing standard with a source.
 
 1. Have tax advisers review the German mappings – charts, reports, tax codes – before the first stable release.
 2. Share books with other people – rights, removing members – and give relays a home with public bodies (6.5, 6.6).
-3. Number ranges per device for invoices (4.6); reopening closed periods and revaluation (4.1, 4.4).
+3. Reopening closed periods and revaluation (4.1, 4.4).
 4. Build the first filing adapter (Germany).
 5. Complete the country list with sources (chapter 5) and add the next countries, Austria and Switzerland first.
 6. Write a translation to SAF-T with its test suite.
@@ -438,7 +440,6 @@ existing standard with a source.
 - **Test data:** licence review of official example files per source (5.3).
 - **Germany, retention:** exact requirements for retaining the structured part of an e-invoice (5.4).
 - **Fiscal periods and foreign currencies:** reopening closed periods, revaluation (4.1, 4.4).
-- **Invoices:** number ranges per device (4.6).
 - **Encryption:** access for a limited time; seeds in the key store of the operating system (6.5).
 - **Relays:** interest of public bodies and the legal framework for running relays (6.6).
 - **ELSTER/ERiC:** conditions for integrating ERiC into an open implementation (7).
