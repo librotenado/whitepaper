@@ -1,12 +1,12 @@
 ---
 title: librotenado
 subtitle: An open protocol for accounting data in Europe
-version: 0.4
+version: 0.5
 status: Draft
 ---
 
 > [!NOTE]
-> Draft v0.4, in step with version 0.4 of the specification. Statements marked **OPEN** are not yet verified and
+> Draft v0.5, in step with version 0.5 of the specification. Statements marked **OPEN** are not yet verified and
 > are collected under "Open points" at the end. Sources are numbered in square brackets and listed under "Sources".
 
 ## 1. Summary
@@ -319,8 +319,13 @@ protocol of Anytype [27]:
 
 Messaging Layer Security (MLS), RFC 9420 [21], was the first candidate. It is built for chats: new members do not
 receive the history, and changes of membership need one agreed order. The design above gives up MLS's healing after a
-compromised device in exchange for an order only on members and a history that stays readable. The algorithms, the
-recovery of lost keys and access for a limited time are **OPEN**.
+compromised device in exchange for an order only on members and a history that stays readable.
+
+The specification fixes the algorithms – Ed25519 for signatures [29], HPKE with X25519 for wrapping the books key
+for a member [30], XChaCha20-Poly1305 for events, originals and the chain of keys – and the member list, the
+envelope and the requests to a relay byte for byte. A device joins with an **invitation**, a secret its person
+carries from a device of the books; a **recovery code**, kept on paper, is a member of its own and brings the books
+back when every device is lost. Access for a limited time is **OPEN**.
 
 ### 6.6 Relays and backends
 
@@ -367,7 +372,7 @@ the ones that may follow; the specification makes no assumption about it.
 
 ### 8.1 Where it stands
 
-Version 0.4 of the specification and the reference library covers, as a draft:
+Version 0.5 of the specification and the reference library covers, as a draft:
 
 - the base types, events and synchronisation, and the canonical encoding (parts 0001–0003);
 - the harmonised chart of accounts with the French PCG and the German SKR 03 and SKR 04 as translations (0004);
@@ -377,10 +382,11 @@ Version 0.4 of the specification and the reference library covers, as a draft:
 - parties and the configuration of their books (0008);
 - reports: the German balance sheet and profit and loss account after the HGB, the advance VAT return, the Anlage EÜR
   and the positions of the E-Bilanz (0009);
-- filings and their events (0007), and the data transfer to German tax auditors after the GoBD (0010).
+- filings and their events (0007), and the data transfer to German tax auditors after the GoBD (0010);
+- end-to-end encryption: members and keys, the member list, envelopes, relays, invitations and recovery codes (0006).
 
-Encryption (0006) and the adapter interface (0007) are proposals. spezado 0.1, a preview, keeps a freelancer's books
-for a year on this basis. The German mappings are drafts until tax advisers have reviewed them.
+The adapter interface (0007) is a proposal. spezado, a preview, keeps a freelancer's books for a year on this basis
+and synchronises them between the person's devices. The German mappings are drafts until tax advisers have reviewed them.
 
 ## 9. Licences and governance
 
@@ -414,7 +420,7 @@ existing standard with a source.
 ## 10. Next steps
 
 1. Have tax advisers review the German mappings – charts, reports, tax codes – before the first stable release.
-2. Specify the member list, the keys and the envelope of 6.5 byte for byte, and synchronise between devices.
+2. Share books with other people – rights, removing members – and give relays a home with public bodies (6.5, 6.6).
 3. Number ranges per device for invoices (4.6); reopening closed periods and revaluation (4.1, 4.4).
 4. Build the first filing adapter (Germany).
 5. Complete the country list with sources (chapter 5) and add the next countries, Austria and Switzerland first.
@@ -433,7 +439,7 @@ existing standard with a source.
 - **Germany, retention:** exact requirements for retaining the structured part of an e-invoice (5.4).
 - **Fiscal periods and foreign currencies:** reopening closed periods, revaluation (4.1, 4.4).
 - **Invoices:** number ranges per device (4.6).
-- **Encryption:** algorithms, recovery of lost keys, access for a limited time (6.5).
+- **Encryption:** access for a limited time; seeds in the key store of the operating system (6.5).
 - **Relays:** interest of public bodies and the legal framework for running relays (6.6).
 - **ELSTER/ERiC:** conditions for integrating ERiC into an open implementation (7).
 - **Bindings:** which language bindings the reference library offers first (8).
@@ -484,3 +490,5 @@ existing standard with a source.
 26. RFC 8785, JSON Canonicalization Scheme (JCS) (June 2020) – <https://www.rfc-editor.org/rfc/rfc8785>
 27. any-sync, Access control and encryption – <https://sync.any.org/access-control/>
 28. RFC 9562, Universally Unique IDentifiers (UUIDs) (May 2024) – <https://www.rfc-editor.org/rfc/rfc9562>
+29. RFC 8032, Edwards-Curve Digital Signature Algorithm (EdDSA) (January 2017) – <https://www.rfc-editor.org/rfc/rfc8032>
+30. RFC 9180, Hybrid Public Key Encryption (February 2022) – <https://www.rfc-editor.org/rfc/rfc9180>
