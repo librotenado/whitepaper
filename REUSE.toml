@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Licence and copyright of files that cannot carry a header (REUSE specification 3.3). The build tooling names its own
+# licence in an SPDX header: build.sh and template/ are AGPL-3.0-or-later, the text is CC BY 4.0.
+version = 1
+
+[[annotations]]
+path = "**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "falkOSS – Falcon Lake Open Source Software gUG (haftungsbeschränkt) i. G. and the librotenado contributors"
+
+# The text – Markdown, and the Typst and PDF set from it – like the specification, so that text moves freely between
+# them.
+[[annotations]]
+path = ["whitepaper.md", "whitepaper.typ", "whitepaper.pdf", "README.md"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "falkOSS – Falcon Lake Open Source Software gUG (haftungsbeschränkt) i. G. and the librotenado contributors"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+# The template pandoc fills in, which cannot carry a header of its own, and files without one.
+[[annotations]]
+path = ["template/pandoc.typ", "**/.gitignore"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "falkOSS – Falcon Lake Open Source Software gUG (haftungsbeschränkt) i. G. and the librotenado contributors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+# Copies of the artwork from librotenado/brand – kept as they are, under its licence.
+[[annotations]]
+path = "template/assets/**"
+precedence = "override"
+SPDX-FileCopyrightText = "falkOSS – Falcon Lake Open Source Software gUG (haftungsbeschränkt) i. G."
+SPDX-License-Identifier = "CC-BY-ND-4.0"
+
+[[annotations]]
+path = "template/fonts/**"
+precedence = "override"
+SPDX-FileCopyrightText = ["2020-2024 The Atkinson Hyperlegible Next Project Authors", "2020-2024 The Atkinson Hyperlegible Mono Project Authors"]
+SPDX-License-Identifier = "OFL-1.1"

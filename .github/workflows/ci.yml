@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# The licence check (REUSE) and a sign-off (DCO) on every commit of a pull request, from falkoss/starterpack, pinned
+# by commit.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  licences:
+    uses: falkoss/starterpack/.github/workflows/reuse.yml@4c37856fa8c0e9a415d1bf207a1d6ccefb1157b6
+  sign-off:
+    uses: falkoss/starterpack/.github/workflows/dco.yml@4c37856fa8c0e9a415d1bf207a1d6ccefb1157b6

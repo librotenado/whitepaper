@@ -34,7 +34,10 @@ The template (`template/librotenado.typ`) follows the librotenado brand kit (`li
 
 The text: [CC BY 4.0](LICENSES/CC-BY-4.0.txt) – like the specification, so that text can move freely between
 whitepaper, specification and standards documents. The build tooling (`build.sh`, `template/`):
-[AGPL-3.0-or-later](LICENSES/AGPL-3.0-or-later.txt). Fonts: Atkinson Hyperlegible Next and Mono, [SIL Open Font License 1.1](LICENSES/OFL-1.1.txt).
+[AGPL-3.0-or-later](LICENSES/AGPL-3.0-or-later.txt). The lockup in `template/assets/`: a copy from
+[librotenado/brand](https://github.com/librotenado/brand), [CC BY-ND 4.0](LICENSES/CC-BY-ND-4.0.txt). Fonts: Atkinson
+Hyperlegible Next and Mono, [SIL Open Font License 1.1](LICENSES/OFL-1.1.txt). Every file's licence is in
+`REUSE.toml` or its SPDX header ([REUSE](https://reuse.software), checked in CI).
 
 ## Contributing
 
