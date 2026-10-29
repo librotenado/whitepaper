@@ -5,7 +5,7 @@ project.
 
 | File | Content | Status |
 |---|---|---|
-| [whitepaper.md](whitepaper.md) | the whitepaper – the only source | v0.1, first full draft; OPEN points remain |
+| [whitepaper.md](whitepaper.md) | the whitepaper – the only source | v0.4, a draft in step with the specification 0.4; OPEN points remain |
 | [whitepaper.pdf](whitepaper.pdf) | set with Typst from the Markdown | generated |
 
 The whitepaper explains why and how; the normative specification lives in

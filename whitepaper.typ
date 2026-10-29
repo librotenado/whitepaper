@@ -4,11 +4,11 @@
 #show: librotenado.with(
   title: "librotenado",
   subtitle: "An open protocol for accounting data in Europe",
-  version: "0.1",
+  version: "0.4",
   date: none,
   status: "Draft",
-  stand: "2026-10-28",
-  rev: "132f1d0",
+  stand: "2026-10-29",
+  rev: "77ef92c",
 )
 
 == 1. Summary
@@ -127,8 +127,19 @@ Several owners may share one set of books. Every line of a booking names the own
 owner\'s lines balance on their own: an internet bill can be split between a business and its owner\'s private books
 in one booking, resting on one document.
 
-An organisation has #strong[fiscal periods];; a period can be open, provisionally closed or closed. Once a period is
-closed, no event may change its bookings -- corrections go into an open period (#strong[OPEN];: not yet specified).
+A booking can also be one side of a #strong[transaction] shared with other sets of books -- the business and the private
+books of the same person, kept apart -- and every device that holds several of them checks that the sides belong
+together.
+
+How an owner keeps its books is recorded from a date on, as an event of its own: the functional currency, the start
+of the financial year, cash basis or double entry, the VAT scheme with the period of its returns and whether their
+deadlines are extended, the national chart it works with, and the region whose public holidays move its deadlines.
+Every device then derives the same reports and deadlines. The books start with #strong[opening balances];, booked once
+against the opening balance sheet; after that, balances carry on from year to year by themselves.
+
+An owner\'s books are #strong[closed] up to a date by an event that names the state of the books it was decided on and the
+software the figures were derived with. A booking or configuration that arrives later for a closed period, written
+offline on another device, is reported; corrections go into the open period. Reopening a period is #strong[OPEN];.
 
 === 4.2 A harmonised chart of accounts
 <42-a-harmonised-chart-of-accounts>
@@ -162,8 +173,8 @@ cents, the yen not at all, ether into gwei and wei. Currency codes follow ISO 42
 crypto assets, vouchers, bonus points -- have codes of their own that can never collide with an ISO code.
 
 A booking in a foreign currency keeps the original amount and the amount in the organisation\'s functional currency,
-together with the exchange rate and its source. Revaluations at period end are bookings like any other (#strong[OPEN];: not
-yet specified).
+together with the exchange rate. Revaluations at period end are bookings like any other (#strong[OPEN];: not yet
+specified).
 
 === 4.5 Documents
 <45-documents>
@@ -182,14 +193,17 @@ translated into the format the recipient or the country requires; incoming invoi
 originals kept, and translated into the model.
 
 Invoice numbers must be unique. The EU VAT Directive requires a sequential number \"based on one or more series\"
-that uniquely identifies the invoice \[19\]. librotenado uses this: every device that issues invoices receives its own
-#strong[number range] (a series), so that devices working offline never issue the same number.
+that uniquely identifies the invoice \[19\]. librotenado intends to use this: every device that issues invoices receives
+its own #strong[number range] (a series), so that devices working offline never issue the same number (#strong[OPEN];: not yet
+specified; the first implementation numbers on one device only).
 
 === 4.7 Reports and filings
 <47-reports-and-filings>
-#strong[Reports] -- trial balance, balance sheet, profit and loss account, VAT summaries -- are defined as functions of the
-events and the chart of accounts. Because every report is derived, it can be recomputed for any point in time and
-any version of the rules.
+#strong[Reports] -- trial balance, balance sheet, profit and loss account, VAT returns, tax forms -- are defined as
+functions of the events and the chart of accounts. A #strong[report mapping] says, for one version of one national
+report, which accounts and tax codes fall into which of its positions; the protocol publishes the mappings per
+country and year, as drafts until tax advisers of the country have reviewed them. Because every report is derived,
+it can be recomputed for any point in time and any version of the rules.
 
 A #strong[filing] is a report submitted to an authority. It records the #strong[state] of the books it was derived from -- a
 hash over all events -- so that anyone with the same events can derive it again, and it shows when later events make
@@ -224,7 +238,7 @@ the specification names the difference instead of guessing.
     [European e-invoice], [EN 16931 (UBL, CII), Peppol BIS Billing 3.0 \[1\]\[3\]], [invoices in and out],
     [National e-invoicing and reporting], [SdI (Italy) \[4\], KSeF (Poland) \[5\], VERI\*FACTU (Spain) \[6\], French reform \[8\], German formats \[9\]], [invoices, clearance and reporting data],
     [Audit files], [SAF-T and national variants \[12\]\[13\]], [export of the books for authorities and auditors],
-    [Bank statements], [ISO 20022 camt.053 \[14\]], [import of bank entries as receipts, matching to open items],
+    [Bank statements], [ISO 20022 camt.053 \[14\], SWIFT MT940 and the CSV files of banks], [import of bank entries as receipts, matching to open items],
     [Financial statements], [XBRL, Inline XBRL / ESEF \[15\], E-Bilanz \[17\]], [export of reports],
     [Charts of accounts], [national charts, e.g. France \[18\]], [views on the harmonised chart],
   )]
@@ -337,7 +351,7 @@ prescribes, submit it through the authority\'s channel, and record the acknowled
 interface] for this pattern -- inputs, the submitted document, status, acknowledgement, corrections -- and #strong[adapters
 per country] that implement it.
 
-Adapters are separate services that an implementation reaches over HTTPS through a documented interface, so they can
+Adapters are separate services that an implementation reaches over HTTPS through a documented REST interface, so they can
 run on the same machine or be offered by a provider. Credentials for an authority\'s system stay with the adapter or
 the device that submits; they are not part of the protocol.
 
@@ -359,6 +373,23 @@ librotenado is meant to have many implementations. The project provides:
 
 The first application built on librotenado is #strong[spezado];, a free accounting program. It is one implementation among
 the ones that may follow; the specification makes no assumption about it.
+
+=== 8.1 Where it stands
+<81-where-it-stands>
+Version 0.4 of the specification and the reference library covers, as a draft:
+
+- the base types, events and synchronisation, and the canonical encoding (parts 0001--0003);
+- the harmonised chart of accounts with the French PCG and the German SKR 03 and SKR 04 as translations (0004);
+- documents with their originals: e-invoices after EN 16931 read and written in UBL and CII, with XRechnung and
+  ZUGFeRD, tested against the published test cases of the German KoSIT; bank statements from camt.053, MT940 and CSV
+  (0005);
+- parties and the configuration of their books (0008);
+- reports: the German balance sheet and profit and loss account after the HGB, the advance VAT return, the Anlage EÜR
+  and the positions of the E-Bilanz (0009);
+- filings and their events (0007), and the data transfer to German tax auditors after the GoBD (0010).
+
+Encryption (0006) and the adapter interface (0007) are proposals. spezado 0.1, a preview, keeps a freelancer\'s books
+for a year on this basis. The German mappings are drafts until tax advisers have reviewed them.
 
 == 9. Licences and governance
 <9-licences-and-governance>
@@ -391,13 +422,12 @@ existing standard with a source.
 
 == 10. Next steps
 <10-next-steps>
-+ Publish version 0.1 of the specification and the reference library together with the first version of spezado.
-+ Complete the country list with sources (chapter 5).
-+ Write the first translations with test suites: EN 16931 / Peppol BIS, a German national e-invoice format, ISO 20022
-  camt.053, SAF-T.
-+ Specify the content of the harmonised chart of accounts against at least two national charts.
-+ Specify the member list, the keys and the envelope of 6.5 byte for byte.
-+ Build the filing interface and the first adapter (Germany).
++ Have tax advisers review the German mappings -- charts, reports, tax codes -- before the first stable release.
++ Specify the member list, the keys and the envelope of 6.5 byte for byte, and synchronise between devices.
++ Number ranges per device for invoices (4.6); reopening closed periods and revaluation (4.1, 4.4).
++ Build the first filing adapter (Germany).
++ Complete the country list with sources (chapter 5) and add the next countries, Austria and Switzerland first.
++ Write a translation to SAF-T with its test suite.
 + Invite implementers, tax advisers and public bodies to review the model.
 
 == Sources
