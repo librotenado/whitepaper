@@ -7,8 +7,8 @@
   version: "0.6",
   date: none,
   status: "Draft",
-  stand: "2026-10-29",
-  rev: "3fd707a",
+  stand: "2026-10-30",
+  rev: "4797ad7",
 )
 
 == 1. Summary
@@ -428,8 +428,19 @@ Which body and which process is #strong[OPEN];.
 Until then, decisions are taken in public: proposals as issues, changes as pull requests, every claim about an
 existing standard with a source.
 
-== 10. Next steps
-<10-next-steps>
+== 10. The name
+<10-the-name>
+```
+LIBRO + TENi + ADO → librotenado
+```
+
+#emph[librotenado] is Esperanto for bookkeeping: #emph[libro] (book) + #emph[teni] (to keep) + #emph[-ado] (ongoing action) -- book-keeping,
+word for word. The dictionary \[31\] explains it as entering income and expenditure, #emph[en- kaj el-spezoj];, into the books --
+the very word spezado, its first implementation, is named after. Esperanto belongs to no nation and takes its roots
+mostly from European languages -- fitting for a protocol meant to become a European standard. Say #emph[li-bro-te-NA-do];.
+
+== 11. Next steps
+<11-next-steps>
 + Have tax advisers review the German mappings -- charts, reports, tax codes -- before the first stable release.
 + Share books with other people -- rights, removing members -- and give relays a home with public bodies (6.5, 6.6).
 + Reopening closed periods and revaluation (4.1, 4.4).
@@ -484,3 +495,5 @@ existing standard with a source.
 + RFC 9562, Universally Unique IDentifiers (UUIDs) (May 2024) -- #link("https://www.rfc-editor.org/rfc/rfc9562")
 + RFC 8032, Edwards-Curve Digital Signature Algorithm (EdDSA) (January 2017) -- #link("https://www.rfc-editor.org/rfc/rfc8032")
 + RFC 9180, Hybrid Public Key Encryption (February 2022) -- #link("https://www.rfc-editor.org/rfc/rfc9180")
++ Reta Vortaro, the free Esperanto dictionary: #emph[spezo];, #emph[librotenado] --
+  #link("https://www.reta-vortaro.de/revo/art/spez.html");, #link("https://www.reta-vortaro.de/revo/art/libr.html")

@@ -419,7 +419,18 @@ Which body and which process is **OPEN**.
 Until then, decisions are taken in public: proposals as issues, changes as pull requests, every claim about an
 existing standard with a source.
 
-## 10. Next steps
+## 10. The name
+
+```
+LIBRO + TENi + ADO → librotenado
+```
+
+*librotenado* is Esperanto for bookkeeping: *libro* (book) + *teni* (to keep) + *-ado* (ongoing action) – book-keeping,
+word for word. The dictionary [31] explains it as entering income and expenditure, *en- kaj el-spezoj*, into the books –
+the very word spezado, its first implementation, is named after. Esperanto belongs to no nation and takes its roots
+mostly from European languages – fitting for a protocol meant to become a European standard. Say *li-bro-te-NA-do*.
+
+## 11. Next steps
 
 1. Have tax advisers review the German mappings – charts, reports, tax codes – before the first stable release.
 2. Share books with other people – rights, removing members – and give relays a home with public bodies (6.5, 6.6).
@@ -493,3 +504,5 @@ existing standard with a source.
 28. RFC 9562, Universally Unique IDentifiers (UUIDs) (May 2024) – <https://www.rfc-editor.org/rfc/rfc9562>
 29. RFC 8032, Edwards-Curve Digital Signature Algorithm (EdDSA) (January 2017) – <https://www.rfc-editor.org/rfc/rfc8032>
 30. RFC 9180, Hybrid Public Key Encryption (February 2022) – <https://www.rfc-editor.org/rfc/rfc9180>
+31. Reta Vortaro, the free Esperanto dictionary: *spezo*, *librotenado* –
+   <https://www.reta-vortaro.de/revo/art/spez.html>, <https://www.reta-vortaro.de/revo/art/libr.html>
